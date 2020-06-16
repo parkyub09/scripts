@@ -1,0 +1,8 @@
+on first join:
+	set join message to "&b%player% &f님 환영합니다!"
+
+on join:
+	set join message to "&f[&e+&f] &a%player% &f님 어서오세요."
+	
+on quit:
+	set quit message to "&f[&c-&f] &a%player% &f님 안녕히가세요."

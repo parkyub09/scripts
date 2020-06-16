@@ -1,0 +1,78 @@
+# 제작 - 비니
+
+options:
+	c : :&6[&e시스템&6]&f
+	s : of current inventory of player to
+	
+command /채팅 [<text>] [<text>] [<offlineplayer>]:
+	trigger:
+		if arg 1 is "청소" or "얼리기" or "녹이기" or "금지":
+			if arg 1 is "청소":
+				if arg 2 is not set:
+					loop 100 times:
+						message "" to player
+					message "{@c}채팅창이 청소 되었습니다!" to player
+				else:
+					if player is op:
+						if arg 2 is "전체":
+							loop 100 times:
+								broadcast ""
+							broadcast "{@c}관리자가 채팅창을 청소 하였습니다!"
+					else:
+						message "{@c}권한이 없습니다."
+			if arg 1 is "얼리기":
+				if player is op:
+					set {채팅::얼리기} to true
+					broadcast "{@c}관리자가 채팅창을 얼렸습니다!"
+					broadcast "{@c}지금부터 채팅이 금지됩니다!"
+				else:
+					message "{@c}권한이 없습니다."
+			if arg 1 is "녹이기":
+				if player is op:
+					set {채팅::얼리기} to false
+					broadcast "{@c}관리자가 채팅창을 녹였습니다!"
+					broadcast "{@c}지금부터 채팅이 허용됩니다!"
+				else:
+					message "{@c}권한이 없습니다."
+			if arg 1 is "금지":
+				if player is op:
+					if arg 2 is set:
+						if arg 3 is set:
+							set {채팅::벤::%arg 3%::분} to arg 2 parsed as integer
+							set {채팅::벤::%arg 3%} to true
+							message "{@c}%arg 3%님의 채팅을 %arg 2%분간 금지시켰습니다!"
+							message "{@c}관리자가 %arg 3%님의 채팅을 %arg 2%분간 금지시켰습니다!"
+
+every 1 second:
+	loop all players:
+		if {채팅::벤::%loop-player%::분} is set:
+			if {채팅::벤::%loop-player%::초} is not set:
+				subtract 1 from {채팅::벤::%loop-player%::분}
+				set {채팅::벤::%loop-player%::초} to 60
+			else:
+				if {채팅::벤::%loop-player%::초} > -1:
+					subtract 1 from {채팅::벤::%loop-player%::초}
+				if {채팅::벤::%loop-player%::초} = -1:
+					if {채팅::벤::%loop-player%::분} > 0:
+						subtract 1 from {채팅::벤::%loop-player%::분}
+						set {채팅::벤::%loop-player%::초} to 59
+					if {채팅::벤::%loop-player%::분} = -1:
+						delete {채팅::벤::%loop-player%::*}
+						message "{@c}채팅금지가 해제되었습니다! 매너채팅 부탁드립니다!" to loop-player
+						
+command /채팅색:
+	trigger:
+		open chest with 3 rows named "&6채팅색 선택" to player
+		set {_a} to 0
+		set {_b} to 17
+		loop 10 times:
+			set slot {_a} {@s} white stained glass pane
+			set slot {_b} {@s} white stained glass pane
+			add 1 to {_a}
+			add 1 to {_b}
+		set {_아이템::*} to white wool, black wool, red wool, orange wool, yellow wool, lime wool and blue wool
+		set {_이름::*} to "하얀색", "검은색", "빨간색", "주황색", "노란색", "연두색" and "파란색"
+		loop {_아이템::*}:
+			set {_int} to loop-index parsed as number 
+			set slot {_int}+9 {@s} loop-value named "&d%{_이름::%loop-index%}%" with lore " " and "&a좌클릭시" and "&f해당색상으로 채팅색 변경"
+			
